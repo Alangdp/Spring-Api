@@ -1,13 +1,5 @@
 package com.ienh.cpi.cpi.DTO;
 
-public record StockDTO(int id, String ticker, String name, String type, Double price) {
+public record StockDTO(int id, String ticker, String name, String type, Double price, String imageURL) {
 
-        public StockDTO updateFromDTO(StockDTO newData) {
-                return new StockDTO(
-                                this.id,
-                                newData.ticker,
-                                newData.name,
-                                newData.type,
-                                newData.price);
-        }
 }

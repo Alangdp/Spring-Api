@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
 
+import com.ienh.cpi.cpi.DTO.UserDTO;
 import com.ienh.cpi.cpi.Errors.SimpleError;
 import com.ienh.cpi.cpi.Utils.Extras;
 import com.ienh.cpi.cpi.Utils.PasswordUtils;
@@ -160,6 +161,16 @@ public class User {
         this.password = password;
         this.cpf = cpf;
         this.phone = phone;
+        this.createdAt = LocalDateTime.now();
+        validOnSave();
+    }
+
+    public User(UserDTO data) throws SimpleError {
+        this.name = data.name();
+        this.email = data.email();
+        this.password = data.password();
+        this.cpf = data.cpf();
+        this.phone = data.phone();
         this.createdAt = LocalDateTime.now();
         validOnSave();
     }

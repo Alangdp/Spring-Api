@@ -41,6 +41,9 @@ public class Stock {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "image_url")
+    private String imageURL;
+
     // Functions
 
     public void validOnSave() throws SimpleError {
@@ -68,6 +71,14 @@ public class Stock {
     }
 
     // Getters and Setters
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
 
     public int getId() {
         return id;
@@ -144,6 +155,7 @@ public class Stock {
         this.name = data.name();
         this.type = data.type();
         this.price = data.price();
+        this.imageURL = data.imageURL();
 
         validOnSave();
     }

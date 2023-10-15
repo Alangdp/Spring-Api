@@ -53,7 +53,7 @@ public class StockController {
                 return ResponseEntity.ok(updatedStock);
             }
 
-            Stock stock = new Stock(data.ticker(), data.name(), data.type(), data.price());
+            Stock stock = new Stock(data);
             Stock newStock = stockRepository.save(stock);
             return ResponseEntity.ok(newStock);
         } catch (Exception e) {

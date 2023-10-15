@@ -21,13 +21,4 @@ public class PasswordUtils {
         return valid;
     }
 
-    public static void main(String[] args) {
-        // make a validation test password
-        String password = "Alant34t";
-        System.out.println("Password: " + password);
-        String hash = "$2a$10$Bb.niPB72kAkPGX09uZszepUpGMojXCtwgPQpNekAnUD/iPqyj7AO";
-        System.out.println("Hash: " + hash);
-
-        System.out.println("Compare: " + compare(password, hash));
-    }
 }

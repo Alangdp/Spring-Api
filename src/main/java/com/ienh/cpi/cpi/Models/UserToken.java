@@ -16,7 +16,7 @@ public class UserToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false)
     private String token;
 
     @Column(nullable = false, length = 5)

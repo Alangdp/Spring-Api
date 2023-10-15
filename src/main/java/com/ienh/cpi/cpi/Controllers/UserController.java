@@ -68,7 +68,7 @@ public class UserController {
     @PostMapping("/")
     public ResponseEntity<?> store(@RequestBody @Validated UserDTO data) {
         try {
-            User user = new User(data.name(), data.email(), data.password(), data.cpf(), data.phone());
+            User user = new User(data);
             user = userRepository.save(user);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
@@ -126,7 +126,9 @@ public class UserController {
         } catch (Exception e) {
             if (e instanceof DataIntegrityViolationException) {
                 UserToken token = tokenRepository.findByUser_id(user.getId());
-                tokenRepository.delete(token);
+                if (token != null) {
+                    tokenRepository.delete(token);
+                }
                 UserToken newToken = new UserToken(Extras.generateToken(), "user", user);
                 newToken = tokenRepository.save(newToken);
                 return ResponseEntity.ok(newToken);

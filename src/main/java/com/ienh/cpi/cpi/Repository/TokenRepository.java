@@ -7,4 +7,7 @@ import com.ienh.cpi.cpi.Models.UserToken;
 public interface TokenRepository extends JpaRepository<UserToken, Integer> {
     // find by userId
     UserToken findByUser_id(int userId);
+
+    // find by token
+    UserToken findByToken(String token);
 }
