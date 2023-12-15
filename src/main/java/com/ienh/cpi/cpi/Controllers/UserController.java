@@ -3,6 +3,7 @@ package com.ienh.cpi.cpi.Controllers;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -70,7 +71,9 @@ public class UserController {
         try {
             User user = new User(data);
             user = userRepository.save(user);
-            return ResponseEntity.ok(user);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             ErrorResponse error = new ErrorResponse(errorMessage, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -90,10 +93,12 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody @Validated UserDTO data) {
+    @PutMapping("/")
+    ResponseEntity<?> update(@RequestBody @Validated UserDTO data) {
         try {
-            User user = userRepository.findById(id).orElseThrow();
+            User user = tokenRepository.findByToken(data.token()).getUser();
+            if (user == null)
+                throw new Exception("User not found");
             user.setName(Extras.getValueOrDefault(data.name(), user.getName()));
             user.setEmail(Extras.getValueOrDefault(data.email(), user.getEmail()));
             user.setCpf(Extras.getValueOrDefault(data.cpf(), user.getCpf()));
@@ -102,7 +107,9 @@ public class UserController {
             user.validOnSave();
             user = userRepository.save(user);
 
-            return ResponseEntity.ok(user);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             ErrorResponse error = new ErrorResponse(errorMessage, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
