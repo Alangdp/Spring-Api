@@ -5,6 +5,6 @@ public record ChartDTO(
         String ticker,
         double quantity,
         double price,
-        int type,
+        String type,
         String token) {
 }

@@ -2,9 +2,11 @@ package com.ienh.cpi.cpi.Controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ienh.cpi.cpi.DTO.ChartDTO;
+import com.ienh.cpi.cpi.DTO.TransactionDTO;
 import com.ienh.cpi.cpi.Models.ErrorResponse;
 import com.ienh.cpi.cpi.Models.Stock;
 import com.ienh.cpi.cpi.Models.Transaction;
@@ -81,23 +84,31 @@ public class ChartController {
         TokenInfo tokenInfo = validToken(data);
         User user = tokenInfo.getValue();
 
-        // findnbyuserid and ticker
         Double averagePrice = transactionRepository.calculateAveragePrice(user.getId(), data.ticker());
 
         return averagePrice;
     }
 
-    public List<Transaction> getTransactions(ChartDTO data, TokenInfo tokenInfo) {
+    public List<Transaction> getTransactions(TokenInfo tokenInfo) {
         User user = tokenInfo.getValue();
 
-        // findnbyuserid and ticker
-        List<Transaction> transactions = transactionRepository.findTransactionsByUserIdAndTicker(user.getId(),
-                data.ticker());
+        List<Transaction> transactions = transactionRepository.findTransactionsByUserId(user.getId());
 
         return transactions;
     }
 
     public TokenInfo validToken(ChartDTO data) {
+        String token = data.token();
+        UserToken user = tokenRepository.findByToken(token);
+        if (user == null) {
+            throw new IllegalArgumentException("Token is invalid");
+        }
+        TokenInfo tokenInfo = new TokenInfo(true, user.getUser());
+
+        return tokenInfo;
+    }
+
+    public TokenInfo validToken(TransactionDTO data) {
         String token = data.token();
         UserToken user = tokenRepository.findByToken(token);
         if (user == null) {
@@ -122,7 +133,6 @@ public class ChartController {
 
         List<Object[]> chartInfo = transactionRepository.getPortfolioSummary(user.getId());
         List<UserChart> userCharts = new ArrayList<>();
-
         for (Object[] info : chartInfo) {
             Stock stockInfo = stockRepository.findByTicker(info[1].toString()).get();
             userCharts.add(new UserChart(info, tokenInfo, data, stockInfo));
@@ -163,9 +173,33 @@ public class ChartController {
     public ResponseEntity<?> chartInfo(@RequestBody @Validated ChartDTO data) {
         try {
             TokenInfo tokenInfo = validToken(data);
+
             return ResponseEntity.ok(getUserCharts(data, tokenInfo));
         } catch (Exception e) {
             System.out.println(e);
+            ErrorResponse error = new ErrorResponse(errorMessage, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    @PostMapping("/transactions")
+    public ResponseEntity<?> index(@RequestBody @Validated TransactionDTO data) {
+        try {
+            TokenInfo tokenInfo = validToken(data);
+
+            Transaction[] transactions = getTransactions(tokenInfo).toArray(new Transaction[0]);
+            Set<String> uniqueTickers = new HashSet<>();
+
+            for (Transaction transaction : transactions) {
+                uniqueTickers.add(transaction.getTicker());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("transactions", transactions);
+            response.put("uniqueTickers", uniqueTickers);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             ErrorResponse error = new ErrorResponse(errorMessage, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }

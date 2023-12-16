@@ -58,7 +58,7 @@ public class Transaction {
 
     public Transaction(Stock stock, TokenInfo tokenInfo, ChartDTO data) {
         this.ticker = stock.getTicker();
-        this.type = data.type() == 0 ? "buy" : "sell";
+        this.type = data.type();
         this.quantity = data.quantity();
         this.price = data.price();
         this.totalInvested = quantity * price;

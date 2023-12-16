@@ -13,6 +13,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     @Query("SELECT t FROM Transaction t WHERE t.userId = :userId AND t.ticker = :ticker")
     List<Transaction> findTransactionsByUserIdAndTicker(@Param("userId") int userId, @Param("ticker") String ticker);
 
+    @Query("SELECT t FROM Transaction t WHERE t.userId = :userId")
+    List<Transaction> findTransactionsByUserId(@Param("userId") int userId);
+
     @Query("SELECT SUM(t.price * t.quantity) / SUM(t.quantity) " +
             "FROM Transaction t " +
             "WHERE t.userId = :userId AND t.ticker = :ticker")
